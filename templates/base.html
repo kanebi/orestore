@@ -4,7 +4,6 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href='{% static "output.css" %}' rel="stylesheet" />
     <title>{% block title %} {% endblock title %}</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp,container-queries"></script>
     <script>
@@ -51,7 +50,7 @@
         {% if user.is_authenticated == False %}
         <button
           class="rounded-lg p-1 w-40 font-semibold margin-4 bg-red-400"
-          onclick='window.location.href="/auth/login"'
+          onclick='window.location.href="/auth/login/"'
         >
           Login
         </button>
@@ -87,7 +86,7 @@
             class="bg-gray-300 m-3 flex-row flex justify-between float-left w-1/2 rounded-md p-2 wrap font-bold"
           >
             <p> API Endpoints </p>
-            <a href="/admin"
+            <a href="/admin/"
               ><div
                 class="p-2 rounded-md bg-blue-300 text-sm font-semibold"
               >

@@ -84,6 +84,7 @@ WSGI_APPLICATION = 'OreWebBackend.wsgi.application'
 
 ALLAUTH_UI_THEME = "light"
 
+SITE_ID =1
 ACCOUNT_EMAIL_VERIFICATION = "none"
 ACCOUNT_EMAIL_REQUIRED = False
 
