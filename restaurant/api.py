@@ -36,7 +36,7 @@ class   BeverageMenuItems(ReadOnlyModelViewSet):
     
     def get_queryset(self):
         qs= super().get_queryset()
-        # filter the queryset from the db model to return only beverages 
+        # filter the queryset from the db model to return only beverages
         filtered_qs = qs.filter(category =  BEVERAGE)
         return filtered_qs
     
