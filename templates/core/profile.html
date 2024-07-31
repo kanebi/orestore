@@ -1,0 +1,58 @@
+{% extends "base.html" %} {% load static %} {% block title %} User Profile |
+{{user.username}}{% endblock title %} {% block content %}
+
+<div id="root"></div>
+
+<script type="text/babel">
+  function Profile() {
+    const [profile, setProfile] = React.useState(null);
+
+    React.useEffect(() => {
+      fetch("/profile")
+        .then((resp) => resp.json())
+        .then((data) => setProfile(data));
+    }, []);
+    return (
+      <div className="p-10">
+        <div className="p-3 text-lg font-bold flex justify-around">
+          <h1>My Profile</h1>
+        </div>
+        <div className="flex gap-2 flex-row ">
+          {profile && (
+            <table className="p-4 w-full ">
+              <tbody>
+                <tr className='border-gray-200 border-b'>
+                  <td className="p-2">Username</td>
+                  <td className="p-2 font-bold  ">{profile.username}</td>
+                </tr>
+                <tr className='border-gray-200 border-b'>
+                  <td className="p-2">Full Name</td>
+                  <td className="p-2 font-bold ">{profile.full_name}</td>
+                </tr>
+                <tr className='border-gray-200 border-b'>
+                  <td className="p-2">Date of Birth</td>
+                  <td className="p-2 font-bold ">{profile.date_of_birth}</td>
+                </tr>
+                <tr className='border-gray-200 border-b'>
+                  <td className="p-2">Phone</td>
+                  <td className="p-2 font-bold ">{profile.phone}</td>
+                </tr>
+                <tr className='border-gray-200 border-b'>
+                  <td className="p-2">Country</td>
+                  <td className="p-2 font-bold ">{profile.country}</td>
+                </tr>
+                <tr className='border-gray-200 border-b'>
+                  <td className="p-2">City</td>
+                  <td className="p-2 font-bold ">{profile.city}</td>
+                </tr>
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  ReactDOM.render(<Profile />, document.getElementById("root"));
+</script>
+{% endblock content %}

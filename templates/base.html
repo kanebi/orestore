@@ -1,0 +1,132 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href='{% static "output.css" %}' rel="stylesheet" />
+    <title>{% block title %} {% endblock title %}</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp,container-queries"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              clifford: "#9B2F32",
+              fontFamily: "sans",
+            },
+          },
+        },
+      };
+    </script>
+
+    <script
+      src="https://unpkg.com/react@18/umd/react.development.js"
+      crossorigin
+    ></script>
+    <script
+      src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"
+      crossorigin
+    ></script>
+    <script src="https://unpkg.com/navigo" crossorigin></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script>
+      // Initialize Navigo router
+      const router = new Navigo("/");
+
+      // Assign router to window for global access
+      window.router = router;
+    </script>
+  </head>
+
+  <body>
+    <div class="container relative w-5/6 m-auto h-[80vh] overflow-auto">
+      <div class="text-center">
+        <h1 style="font-size: 30px" class="font-bold p-2 text-lg text-red-500">
+          ORE RESTAURANT
+        </h1>
+      </div>
+
+      <div class="p-3">
+        {% if user.is_authenticated == False %}
+        <button
+          class="rounded-lg p-1 w-40 font-semibold margin-4 bg-red-400"
+          onclick='window.location.href="/auth/login"'
+        >
+          Login
+        </button>
+        {% else %}
+        <b class="font-bold text-lg">Welcome, {{user.username}}!</b>
+
+        <div class="float-right flex flex-row gap-3">
+          <button
+            class="rounded-lg p-1 w-40 font-semibold margin-4 bg-red-400"
+            onclick='window.location.href="/accounts/profile/"'
+          >
+            My Profile
+          </button>
+          <button
+            class="rounded-lg p-1 px-2 w-30 font-semibold margin-4 bg-red-400"
+            onclick='window.location.href="/"'
+          >
+            Home
+          </button>
+        </div>
+        {% endif %}
+      </div>
+      <hr />
+
+      {% block content %} {% endblock content %} {% block script %} {% endblock script %}
+
+      <hr />
+    </div>
+    <div class="container relative w-5/6 m-auto">
+      <footer>
+        <div class="flex flex-col gap-1">
+          <div
+            class="bg-gray-300 m-3 flex-row flex justify-between float-left w-1/2 rounded-md p-2 wrap font-bold"
+          >
+            <p> API Endpoints </p>
+            <a href="/admin"
+              ><div
+                class="p-2 rounded-md bg-blue-300 text-sm font-semibold"
+              >
+                Admin/Staff Panel
+              </div></a
+            >
+          </div>
+          <div class="flex flex-row gap-2 w-1/2 justify-around p-2">
+            <div class="p-2 rounded-md bg-red-300 text-sm font-semibold">
+              <a href="/users">Users</a>
+            </div>
+            <div class="p-2 rounded-md bg-red-300 text-sm font-semibold">
+              <a href="/profile">Profile</a>
+            </div>
+            <div class="p-2 rounded-md bg-red-300 text-sm font-semibold">
+              <a href="/menus">Menus</a>
+            </div>
+            <div class="p-2 rounded-md bg-red-300 text-sm font-semibold">
+              <a href="/menus/discounted">Discounted Menus</a>
+            </div>
+            <div class="p-2 rounded-md bg-red-300 text-sm font-semibold">
+              <a href="/menus/drink">Drink Menus</a>
+            </div>
+            <div class="p-2 rounded-md bg-red-300 text-sm font-semibold">
+              <a href="/create-order">Create Order</a>
+            </div>
+          </div>
+        </div>
+        {% if user.is_authenticated %}
+        <div class="absolute right-0 top-10">
+          <button
+            class="rounded-lg p-2 w-35 font-semibold text-xs margin-4 bg-red-100 text-gray-500"
+            onclick='window.location.href="/auth/logout/"'
+          >
+            Logout
+          </button>
+        </div>
+        {% endif %}
+      </footer>
+    </div>
+  </body>
+</html>

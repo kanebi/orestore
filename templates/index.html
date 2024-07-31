@@ -1,0 +1,326 @@
+{% extends "base.html" %} {% load static %} {% block title %}Ore Restaurant
+{%endblock title %} {% block content %}
+<div className="flex">
+  <button
+    class="rounded-lg p-1 px-2 text-sm w-30 font-semibold mx-2 mt-2 bg-red-200"
+    onclick='window.router.navigate("/my-orders")'
+  >
+    My Orders
+  </button>
+</div>
+<div id="root"></div>
+
+<script type="text/babel">
+  function Home() {
+    const [menus, setMenus] = React.useState([]);
+    const [filter, setFilter] = React.useState("all");
+
+    React.useEffect(() => {
+
+      fetch(filter === "all" ? "/menus/" : "/menus/" + filter + "/")
+        .then((resp) => resp.json())
+        .then((data) => setMenus(data));
+    }, [filter]);
+
+    return (
+      <div className="p-10">
+        <div className="p-3 text-lg font-bold flex justify-around">
+          <h1>Menus</h1>
+        </div>
+        <div className="filter-panel m-2 w-full mb-2">
+          <select
+            placeholder="Filter By" className='rounded-md w-[20vh]'
+            default="all"
+            onChange={(e) => setFilter(e.target.value)}
+          >
+            <option value="all"> All</option>
+            <option value="discounted"> Discounted</option>
+            <option value="drinks"> Drinks</option>
+          </select>
+        </div>
+        <div className="flex gap-3 flex-row ">
+        
+          {menus.map((item) => (
+            <div
+              key={item.id}
+              onClick={() => window.router.navigate(`/menuitems/${item.id}`)}
+              className="cursor-pointer border-red-100 flex flex-col gap-3 rounded-md p-10 shadow-md"
+            >
+              <b>{item.name}</b>
+              <div className="rounded-sm p-1 align-center content-center text-sm gap-4 flex flex-row">
+                <div className="float-left">
+                  {item.available ? "Available" : "Unavailable"}
+                </div>
+                <b>|</b>
+                <div className="text-lg font-bold text-green-500 float-right">
+                  NGN {item.price}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  function Menu({ id }) {
+    const [menuItem, setMenuItem] = React.useState(null);
+    React.useEffect(() => {
+      fetch(`/menus/${id}/`)
+        .then((resp) => resp.json())
+        .then((data) => setMenuItem(data));
+    }, [id]);
+
+    const handleCheckout = (e) => {
+      e.preventDefault();
+
+      const data = Object.fromEntries(new FormData(e.currentTarget));
+      const activeMenuItem = { item: menuItem, quantity: data.quantity };
+      window.localStorage.setItem(
+        "activeMenuItem",
+        JSON.stringify(activeMenuItem)
+      );
+      window.router.navigate("/checkout");
+    };
+
+    return (
+      <div className="p-10">
+        <div className="p-3 text-lg font-bold flex justify-around">
+          <h1>{menuItem && menuItem.name}</h1>
+        </div>
+
+        <div className="flex gap-2 flex-row ">
+          {menuItem && (
+            <div className="flex gap-2 flex-col w-full   rounded-md">
+              <div className="rounded-md p-2 bg-green-100 text-sm w-20 float-right m-10 justify-start">
+                {menuItem.available && "Available"}
+              </div>
+              <div className="float-right text-orange-700 border-b border-gray-300 px-3 w-20 text-sm self-end content-end rounded-lg circular">
+                <p>{menuItem.percentage_discount}% Off</p>
+              </div>
+              <div className="flex gap-2 flex-row wrap">
+                <div>
+                  <b>Description:</b>
+                  <p>{menuItem.description}</p>
+                </div>
+                <div className=" font-bold text-lg float-right">
+                  <h2 className="float-left ml-2 text-xlg font-bold h-10">
+                    NGN {menuItem.price}
+                  </h2>
+                </div>
+              </div>
+              <div className="flex gap-5 flex-row justify-end">
+                <div className="rounded-md p-2 bg-gray-100  m-10 ">
+                  Category: {menuItem.category}
+                </div>
+              </div>
+              <div className="flex   w-full">
+                <div className=" gap-0 bg-red-800 rounded-md">
+                  <form onSubmit={handleCheckout}>
+                    <button className=" text-md text-white rounded-lg font-bold p-3 w-[50vh] ">
+                      Order Item{" "}
+                    </button>
+                    <input
+                      type="number"
+                      required
+                      name="quantity"
+                      className="bg-red-700 outline-none focus:outline-none text-white rounded-lg font-bold p-3 w-20"
+                      placeholder="Qty"
+                    />
+                  </form>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+  function Checkout() {
+    const [activeMenuItem, setActiveMenuItem] = React.useState(null);
+
+    React.useEffect(() => {
+      const activeMI = window.localStorage.getItem("activeMenuItem");
+      setActiveMenuItem(JSON.parse(activeMI));
+    }, []);
+    const PAYMENT_METHODS = { CS: "Cash", ON: "Online" };
+
+    const handleCreateOrder = (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.currentTarget);
+      const data = Object.fromEntries(formData);
+      data["items"] = [
+        { item: activeMenuItem.item.id, quantity: activeMenuItem.quantity },
+      ];
+      fetch("/create-order", {
+        body: JSON.stringify(data),
+        method: "post",
+
+        headers: {
+          "X-CSRFToken": "{{ csrf_token }}",
+          "Content-Type": "application/json",
+        },
+      })
+        .then((resp) => resp.json())
+        .then((data) => window.router.navigate("/my-orders"));
+    };
+
+    return (
+      <div className="p-10">
+        <div className="p-3 text-lg font-bold flex justify-around">
+          <h1>Single Item Checkout</h1>
+        </div>
+
+        <div className="flex gap-2 flex-row ">
+          {activeMenuItem && (
+            <div className="flex gap-2 flex-col w-full  ">
+              <form onSubmit={handleCreateOrder}>
+                <div className="rounded-md p-2 bg-green-50 text-sm  justify-between">
+                  <table className="w-full mb-10 bordered border-gray-200 text-left">
+                    <tbody>
+                      <tr>
+                        <th>Item(s) Name</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                      </tr>
+                      <tr>
+                        <td>{activeMenuItem.item.name}</td>
+                        <td>{activeMenuItem.quantity}</td>
+                        <td>
+                          {activeMenuItem.item.price * activeMenuItem.quantity}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <hr />
+                  <div className="flex gap-4 flex-col w-full ">
+                    <select
+                      name="payment_method"
+                      className="bg-red-200 outline-none focus:outline-none text-white rounded-lg font-bold p-3 w-full"
+                      required
+                      placeholder="Payment Method"
+                    >
+                      {activeMenuItem.item.accepted_payment_methods.map(
+                        (pymt) => (
+                          <option key={pymt} value={pymt}>
+                            {PAYMENT_METHODS[pymt]}
+                          </option>
+                        )
+                      )}
+                    </select>
+                    <input
+                      type="text"
+                      name="shipping_address"
+                      className="bg-red-200 outline-none focus:outline-none text-white rounded-lg font-bold p-3 w-full"
+                      required
+                      placeholder="Shipping Address"
+                    />
+                  </div>
+                </div>
+                <div className="flex  flex-col w-full">
+                  <div className=" gap-0 bg-red-800 rounded-md w-full">
+                    <button
+                      type="submit"
+                      className=" text-md text-white rounded-lg font-bold p-3  w-full"
+                    >
+                      Checkout{" "}
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+  function UserOrders() {
+    const [orders, setOrders] = React.useState([]);
+
+    React.useEffect(() => {
+      fetch("/orders/")
+        .then((resp) => resp.json())
+        .then((data) => setOrders(data));
+    }, []);
+
+    return (
+      <div className="p-10">
+        <div className="p-3 text-lg font-bold flex justify-around">
+          <h1>My Orders</h1>
+        </div>
+        <div className="flex flex-col gap-3">
+          {orders.map((order) => (
+            <div
+              key={order.id}
+              className="cursor-pointer border-red-50 flex flex-col gap-3 w-full rounded-md p-10 shadow-md"
+            >
+              <div className="bg-red-100 rounded-md p-2 float-left">
+                <small>#Ore-{order.id} </small>|{" "}
+                <small>{order.items.length} Item(s)</small>
+                <br />
+                ---------------
+                <br />
+                <div className="mx-4">
+                  <b>Items:</b>
+                </div>
+                {order.items.map((itm) => (
+                  <div className="flex flex row gap-4">
+                    {" "}
+                    <hr />
+                    <b> {itm.menu_item.name} </b> | <p>Qty: {itm.quantity}</p>{" "}
+                    <p>Amount: {itm.quantity * itm.menu_item.price}</p>{" "}
+                  </div>
+                ))}
+              </div>
+              <div className="rounded-sm p-1 align-center content-center text-sm gap-4 flex flex-row">
+                <div className="float-left bg-blue-100 rounded-lg p-2">
+                  {order.status}
+                </div>
+                <b>|</b>
+                <div className="text-lg font-bold text-green-500 float-right">
+                  NGN {order.total}
+                </div>
+              </div>
+              <hr />
+
+              <div className="bg-gre-100 justify-between gap-4 rounded-md p-2 float-left flex flex-wrap  ">
+                <div>
+                  <p>Shipping Address: </p>
+                  <b>{order.shipping_address}</b>
+                </div>
+                <div>
+                  <p>Payment Method: </p>
+                  <b>{order.payment_method}</b>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  window.router
+    .on({
+      "/": () => {
+        ReactDOM.createRoot(document.getElementById("root")).render(<Home />);
+      },
+      "/menuitems/:id": (params) => {
+        ReactDOM.createRoot(document.getElementById("root")).render(
+          <Menu id={params.data.id} />
+        );
+      },
+      "/checkout": () => {
+        ReactDOM.createRoot(document.getElementById("root")).render(
+          <Checkout />
+        );
+      },
+      "/my-orders": () => {
+        ReactDOM.createRoot(document.getElementById("root")).render(
+          <UserOrders />
+        );
+      },
+    })
+    .resolve();
+</script>
+
+{% endblock content %}

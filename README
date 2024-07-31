@@ -1,0 +1,91 @@
+Sure! Here’s the entire README content consolidated into one block for easy copying:
+
+```markdown
+# Django Project
+
+## Introduction
+This is a Django project that includes models for a menu item, order item, and customer order. The project also includes tests for these models.
+
+## Prerequisites
+- Python 3.x
+- pip (Python package installer)
+- PostgreSQL (or another database system supported by Django)
+- virtualenv (optional but recommended for creating isolated Python environments)
+
+## Installation
+
+### 1. Clone the Repository
+```sh
+git clone https://github.com/kanebi/orestore.git
+cd OreWebBackend
+```
+
+### 2. Create and Activate a Virtual Environment
+```sh
+python -m venv env
+source env/bin/activate  # On Windows use `venv\Scripts\activate`
+```
+
+### 3. Install Dependencies
+```sh
+pip install -r requirements.txt
+```
+
+### 4. Set Up the Database
+Ensure you have PostgreSQL installed and running. Create a database and a database user.
+
+#### Create a PostgreSQL Database
+```sh
+psql -U postgres -d postgres
+CREATE DATABASE mydatabase;
+CREATE USER myuser WITH PASSWORD 'mypassword';
+GRANT ALL PRIVILEGES ON DATABASE mydatabase TO myuser;
+```
+
+### 5. Configure Environment Variables
+Create a `.env` file in the project root and add the following:
+
+```env
+SECRET_KEY=your_secret_key
+DEBUG=True
+ENV=DEV
+DEV_PGDATABASE=mydatabase
+DEV_PGUSER=myuser
+DEV_PGHOST=localhost
+DEV_PGPORT=5432
+DEV_PGPASSWORD=mypassword
+```
+
+### 6. Apply Migrations
+```sh
+python manage.py makemigrations
+python manage.py migrate
+```
+
+### 7. Create a Superuser
+```sh
+python manage.py createsuperuser
+```
+
+### 8. Collect Static Files (if applicable)
+```sh
+python manage.py collectstatic
+```
+
+## Running the Server
+To run the development server, use the following command:
+
+```sh
+python manage.py runserver
+```
+
+The server will start on `http://127.0.0.1:8000/`. Open this URL in your browser to access the project.
+
+## Running Tests
+To run the tests, use the following command:
+
+```sh
+python manage.py test
+```
+
+This will discover and run all the tests in your project.
