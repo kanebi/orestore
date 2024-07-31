@@ -63,7 +63,9 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'OreWebBackend.urls'
-
+CSRF_TRUSTED_ORIGINS = [
+    'http://127.0.0.1',  'https://orestore.up.railway.app',  'http://orestore.up.railway.app'
+]
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
